@@ -28,8 +28,9 @@ jobs:
           host: ${{ secrets.HOST }}
           username: ${{ secrets.SSH_USER_NAME }}
           key: ${{ secrets.SSH_KEY }}
-          script: sudo chown -R ubuntu:ubuntu /var/www/html
-
+          script: |
+            sudo mkdir -p /var/www/html  # 先创建目录
+            sudo chown -R ubuntu:ubuntu /var/www/html
       - name: copy file to server
         uses: appleboy/scp-action@master
         with:
