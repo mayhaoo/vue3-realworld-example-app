@@ -21,6 +21,15 @@ jobs:
         run: |
           pnpm install --no-frozen-lockfile
           pnpm build
+       # 🔒 第一步：先给 ubuntu 用户写权限
+      - name: set folder owner to ubuntu
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.SSH_USER_NAME }}
+          key: ${{ secrets.SSH_KEY }}
+          script: sudo chown -R ubuntu:ubuntu /var/www/html
+
       - name: copy file to server
         uses: appleboy/scp-action@master
         with:
@@ -30,3 +39,12 @@ jobs:
           source: "./dist/*"
           target: "/var/www/html"
           strip_components: 1
+
+       # 🔒 第二步：改回 Nginx 可读权限
+      - name: set folder owner to www-data
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.SSH_USER_NAME }}
+          key: ${{ secrets.SSH_KEY }}
+          script: sudo chown -R www-data:www-data /var/www/html && sudo chmod -R 755 /var/www/html
